@@ -1,8 +1,6 @@
 ```
 rustlings watch
 ```
-
-
 #### slice
 
 ```rust
@@ -16,8 +14,6 @@ fn slice_out_of_array() {
 // let nice_slice = a[1..4]; 
 //                  ^^^ doesn't have a size known at compile-time
 ```
-
-感觉下面的解释有问题。。。
 
 对比区别：`nice_slice` 有没有 `&`
 - `a[1..4]` 表达式表示从数组 `a` 中获取一个切片（slice），不是一个数组。
@@ -42,27 +38,20 @@ let tup: (i32, f64, u8) = (500, 6.4, 1);
 ```rust
 # tuple destructuring...
 let cat = ("Furry McFurson", 3.5);
-let (name, age)  = cat;
-println!("{} is {} years old.", name, age);
+let (name, age)  = cat;      // Attention
 ```
-
 
 #### Vec
 
 Create vec :
 ```rust
-# method 1: Vec::new() 后 不断 push()
+# method 1: Vec::new 后 不断 push()
 let mut v = Vec::new();
 v.push(10);  v.push(20);  v.push(30);    v.push(40);
 
 # method 2 - use macro vec! 
 let v = vec![10, 20, 30, 40]
 ```
-
-为什么 macro 是 `vec![10,..]` 而不是 `vec!(10,..)`  ?
- - gpt: 宏调用可以是 `macro!()`, `macro!{}`, 或 `macro![]` 的形式，取决于宏的定义
-
----
 
 ```rust
 # 将 v 这个 vec 里的每一个元素都 *2 
@@ -75,8 +64,7 @@ for ele in v.iter_mut() {
 
 注意，
  - `v.iter_mut()` 返回一个可变 Iterator，会逐个产生向量 `v` 中元素的可变引用 (`&mut i32`)
- - 注释中, `*ele * 2` Error 是因为这个表达式计算了 `ele * 2` ，但没有将计算的结果赋回元素，`for` 循环的每次迭代都有一个表达式，Rust 要求这个表达式的类型必须是 `()`（单元类型），我们这里产生的是 `i32` 类型
-
+ - 注释中  `*ele * 2`  的Error 是因为这个表达式计算了 `ele * 2` ，但没有将计算的结果赋回元素，`for` 循环的每次迭代都有一个表达式，Rust 要求这个表达式的类型必须是 `()`（单元类型），我们这里产生的是 `i32` 类型
 
 ```rust
 v.iter().map(|ele| {
@@ -85,15 +73,11 @@ v.iter().map(|ele| {
 ```
  - 这段代码使用的是 map 函数，而不是上面的 for 循环
  - 闭包 `|ele| ele * 2` 接收一个元素引用 `ele`( &i32 )，并计算它的两倍
-
-
-
 #### move semantics
 
 move semantics [^1]
 
 ```rust
-
 fn fill_vec(mut vec: Vec<i32>) -> Vec<i32> {
     vec.push(88);
     vec
@@ -104,14 +88,11 @@ fn fill_vec(mut vec: Vec<i32>) -> Vec<i32> {
 	 - 函数参数的可变性是在**函数签名**中定义的，而不是在函数调用时确定的。换句话说，当你传递一个变量给函数时，是否可以在函数内部修改这个变量取决于函数参数的定义
 	 - `mut` 关键字是用于变量声明的，它定义了变量的可变性，而不是变量的使用方式
 
-
 ```rust
 let mut vec1 = fill_vec(vec0);
 let     vec1 = fill_vec(vec0);
 ```
  - 如上所述，2 种定义方法都是正确的，只是变量定义的可变性不同
-
-
 #### match
 
 有些 match 代码挺难写的，下面的例子做错，要仔细看
@@ -189,9 +170,6 @@ state.process(Message::Quit);
 - 为什么 `change_color((` 用了 2 个括号？
 	- 因为传入的是元组 tuple 作为参数  ( When passing a tuple as a function argument, you'll need extra parentheses: fn function((t, u, p, l, e))
 
-
------
-
 match 和所有权转移:  
  - 试 fix 如下代码，使得 y 在 match 模式匹配后仍然可以继续使用
 ```rust
@@ -204,8 +182,6 @@ y;
  - Solution: 
 	 - 只需把 `match y` 改成 `match &y` 即可
 	 - 模式匹配时，Rust 会自动进行`解引用`，让我们能够匹配引用指向的内容
-
-
 #### String
 
 简易方法创建一个多行字符串：
@@ -221,8 +197,10 @@ y;
     }
 ```
 
-----
+------
 
+现在，对 `&str` 有 3 个需求：分别是 `trim`, `拼接` 和 `替换` 
+ - 观察下面函数的实现：
 ```rust
 fn trim_me(input: &str) -> String {
     input.trim().to_string()
@@ -237,10 +215,9 @@ fn replace_me(input: &str) -> String {
     input.replace("cars", "balloons")
 }
 ```
-如上代码，有 3 个需求： trim, 拼接 和 替换
 
 **为什么 `trim()` 后要 `to_string()` ?**
-- 函数定义要求：将 trim() 后的 `&str` 转换成 `String` 类型
+- 函数定义要求：将` trim()` 后的 `&str` 转换成 `String` 类型
 
 **为什么不直接把 `trim()` 定义到 String 上面？**
  - ①  `String` 和 `&str`（字符串切片）是两种不同的字符串表示方式。`String` 是一个可增长、可修改、拥有所有权的字符串类型，而 `&str` 是一个不可变引用到字符串的切片
@@ -255,7 +232,7 @@ let trimmed = s.trim();  // 这里 String 会自动 Deref 到 &str 类型
 
 ------
 
-说说类型，`&str`   or   `String` ？(后面有答案)
+请你说说下面这些表达式的类型，`&str`   or   `String` ？(后面有答案)
 
 ```rust
 "red".to_string()
@@ -285,13 +262,12 @@ String :
   "Happy Monday!".to_string().replace("Mon", "Tues")
   "mY sHiFt KeY iS sTiCkY".to_lowercase()
 ```
- - `"blue"` 是字面量字符串，类型为 `&str`
+ - `"blue"` 是字符串字面量，类型为 `&str`
  - `"nice weather".into()` 利用 `into` 方法将 `&str` 转换为 `String`
  - `format!` 宏返回一个 `String`
  - `.trim()` 返回一个 `&str`
  - `replace` 方法返回一个新的 `String`
  - `to_lowercase` 方法返回一个新的 `String`
-
 
 `to_owned`：
  - `to_owned()` 是 `ToOwned` trait 的一部分。这个 trait 通常用于从 `借用类型` 创建 Owned 类型，例如从 `&str` 创建 `String`，或从切片 `&[T]` 创建 `Vec<T>`
@@ -315,7 +291,7 @@ for fruit in fruit_kinds {
 
 为什么 `contains_key(&fruit)` 用 `&` ， 但是 `basket.insert(fruit, 1);` 不用 `&`  ？
 
-1. **`contains_key` 方法**：
+**`contains_key` 方法**：
 ```rust
 fn contains_key<Q: ?Sized>(&self, k: &Q) -> bool
 where
@@ -325,7 +301,7 @@ where
 
 `contains_key` 只需要一个对键的引用（`&Q`），因为它不会更改键或哈希映射的状态。由于它仅需要引用，我们使用 `&fruit` 来传递对键的引用
 
-2. **`insert` 方法**：
+**`insert` 方法**：
 ```rust
 fn insert(&mut self, k: K, v: V) -> Option<V>
 ```
@@ -365,8 +341,6 @@ for r in results.lines() {
 `scores.entry` : 查找 HashMap `scores` 中是否存在 `team_1_name` 这个 key ：
 - If so，返回这个 key 对应的 mut ref，即 `team_1` 对应的 `Team` struct 实例的引用
 - If not，它会使用 `or_insert_with` 方法中的闭包 `|| Team { goals_scored: 0, goals_conceded: 0 }` 创建一个新的 `Team` 实例，并将其插入 HashMap，然后返回这个新值的可变引用
-
-
 
 #### Exercise 2 (中期 Exercise)
 
@@ -436,8 +410,6 @@ mod tests {
  - `"hello".into()` : 
 	 - "hello" 是一个 string literal，是个 `&str` 类型，为了匹配 transformer 函数的参数，需调用 `.into` 将其转为 `String`
 
-
-
 #### Control flow
 
 如下代码使用 `if let Some(word)` 试探究使用 `Some` 的合理性
@@ -453,7 +425,6 @@ if let Some(word) = optional_target {
  - `Some(pattern)` 是我们要匹配的模式，其中 `pattern` 是我们想要从 `Some` variant 中提取的值
 	 - 如果 `optional_target` 是 `Some()` variant（即不是 `None`），则将其中包含的值绑定到变量 `word` 上，所以 `word` 的类型是 `Option` 中包含的类型，即 `&str` 
 	 - 所以 `if let Some(xx)` 就相当于是个解包，把原本包在 `Some(xx)` 里的 xx 给 **脱壳**
-
 
 如下代码使用 `Some(Some(integer))` , 试探究 :
 ```rust
@@ -482,7 +453,6 @@ fn layered_option() {
  - `Some(Some(integer)) : `
 	 - `pop()` 方法本身会返回一个 `Option<T>` 类型
 
-
 #### error_handling
 
 ##### 使用 Result
@@ -494,7 +464,7 @@ Result 处理字符串为空 `""` 时的情况，我们报一个带信息的 Err
 pub fn generate_nametag_text(name: String) -> Option<String> {
     if name.is_empty() {
         // Empty names aren't allowed.
-        Result<"Error!">
+        Result<"Error!"> // 这什么东西？？
     } else {
         Some(format!("Hi! My name is {}", name))
     }
